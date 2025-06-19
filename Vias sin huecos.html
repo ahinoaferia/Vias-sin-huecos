@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Proyecto Vías Sin Huecos: soluciones sustentables para baches en México con llantas recicladas." />
+  <title>Vías Sin Huecos</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      scroll-behavior: smooth;
+      color: #333;
+    }
+    h2, h3, h1 {
+      color: #d50000;
+    }
+    header {
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      flex-wrap: wrap;
+    }
+    nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background: #d50000;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    nav button:hover { background: #b40000; }
+    nav button.active {
+      background: #a30000;
+      box-shadow: 0 0 12px rgba(163, 0, 0, 0.9);
+    }
+    main section {
+      padding: 60px 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .hero {
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+    #map {
+      height: 500px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    #searchContainer {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1001;
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    #searchInput {
+      padding: 6px;
+      width: 200px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #reportButton {
+      padding: 20px 40px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      background-color: #e53935;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(229, 57, 53, 0.5);
+      margin: 30px auto;
+      display: inline-block;
+    }
+    #reportButton:hover {
+      box-shadow: 0 0 35px rgba(255, 82, 82, 0.9);
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #d50000;
+      color: white;
+    }
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      #reportButton {
+        width: 100%;
+      }
+    }
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #modalContent {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 90%;
+    }
+    #modalContent input, #modalContent textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #modalContent button {
+      background: #d50000;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Vías Sin Huecos</h1>
+  <nav>
+    <button onclick="scrollToSection('hero')">Inicio</button>
+    <button onclick="scrollToSection('objetivo')">Objetivo</button>
+    <button onclick="scrollToSection('blog')">Blog</button>
+    <button onclick="scrollToSection('nosotros')">¿Quiénes somos?</button>
+    <button onclick="scrollToSection('contacto')">Contacto</button>
+  </nav>
+</header>
+<main>
+  <section id="hero" class="hero">
+    <h2>La importancia de carreteras en buen estado</h2>
+    <p>Las carreteras son vitales para el desarrollo económico y social de México. Mantenerlas en óptimas condiciones garantiza seguridad y eficiencia en el transporte.</p>
+    <div id="map">
+      <div id="searchContainer">
+        <input id="searchInput" type="text" placeholder="Buscar calle...">
+      </div>
+    </div>
+    <button id="reportButton">REPORTAR UN BACHE</button>
+  </section>
+  <section id="objetivo">
+    <h2>Compromiso con la seguridad vial</h2>
+    <p>Nuestro objetivo es garantizar la seguridad en los caminos, ofreciendo soluciones efectivas para prevenir accidentes. Creemos en un futuro donde cada viaje sea seguro y confiable, gracias a nuestro enfoque en responsabilidad y compromiso.</p>
+  </section>
+  <section id="blog">
+    <h2>Blog: Proyecto de llantas recicladas para baches</h2>
+    <img src="https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=800&q=80" alt="Llantas recicladas usadas para reparar baches" loading="lazy" />
+    <p>Estamos trabajando en un innovador proyecto que utiliza llantas recicladas para reparar baches en las carreteras. Esta solución ecológica ayuda a mejorar la seguridad vial y reduce el impacto ambiental.</p>
+  </section>
+  <section id="nosotros">
+    <h2>¿Quiénes somos?</h2>
+    <p>Somos estudiantes de segundo año de preparatoria en la UVM, comprometidos con mejorar la calidad de vida en nuestro municipio. Nuestra misión es garantizar la seguridad en las carreteras, ofreciendo soluciones efectivas para prevenir accidentes.</p>
+    <p>A través de nuestro proyecto de reparación de baches con llantas recicladas, buscamos soluciones innovadoras que beneficien a nuestra comunidad.</p>
+  </section>
+  <section id="contacto">
+    <h2>Contacto</h2>
+    <p>Tel: 55-6220-0168</p>
+    <p>Tel: 55-7219-7005</p>
+  </section>
+</main>
+<footer>
+  &copy; 2025 Vías Sin Huecos. Todos los derechos reservados.
+</footer>
+<div id="modal">
+  <div id="modalContent">
+    <h3>Reportar un bache</h3>
+    <input type="text" placeholder="Dirección o ubicación aproximada" required>
+    <textarea placeholder="Descripción del problema" rows="4" required></textarea>
+    <input type="file" accept="image/*">
+    <button onclick="submitReport()">Enviar reporte</button>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([19.4326, -99.1332], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  const modal = document.getElementById('modal');
+  document.getElementById('reportButton').addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  function submitReport() {
+    alert('¡Gracias por tu reporte! Pronto lo revisaremos.');
+    modal.style.display = 'none';
+  }
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Buscar calle
+  document.getElementById('searchInput').addEventListener('change', function() {
+    const address = this.value;
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          const { lat, lon } = data[0];
+          map.setView([lat, lon], 16);
+        } else {
+          alert('No se encontró la ubicación');
+        }
+      });
+  });
+
+  // Ejemplo de marcadores de baches
+  const baches = [
+    { lat: 19.4306, lon: -99.1332, descripcion: 'Bache profundo en Av. Reforma' },
+    { lat: 19.4350, lon: -99.1400, descripcion: 'Zona con múltiples baches' }
+  ];
+
+  baches.forEach(b => {
+    L.marker([b.lat, b.lon])
+      .addTo(map)
+      .bindPopup(`<strong>Reporte:</strong><br>${b.descripcion}`);
+  });
+</script>
+</body>
+</html>
